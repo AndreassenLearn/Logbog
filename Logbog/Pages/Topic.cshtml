@@ -1,0 +1,85 @@
+﻿@page
+@model Logbog.Pages.TopicModel
+@{
+  ViewData["Title"] = @Model.Topic.Name;
+}
+
+<h2 class="text-center">@(Model.Topic.MainIndex.ToString()).@(Model.Topic.SubIndex != null ? Model.Topic.SubIndex.ToString() : "")@(Model.Topic.SubSubIndex != null ? "." + Model.Topic.SubSubIndex.ToString() : "") @Model.Topic.Name</h2>
+
+@if (Model.Topic.TopicNotes.Count() > 0)
+{
+  <div class="container">
+
+    @{
+      bool listDates = false;
+      DateTime firstDate = Model.Topic.TopicNotes.First().DateOfCreation;
+      foreach(TopicNote note in Model.Topic.TopicNotes)
+      {
+        if (note.DateOfCreation != firstDate)
+        {
+          listDates = true;
+
+          break;
+        }
+      }
+    }
+
+    @if (listDates)
+    {
+      <div class="row">
+        <div class="col">
+          <div class="text-center">
+            <small><i>Hop til en dato:</i></small>
+          </div>
+          <div class="text-center">
+            @{
+              int i = 0;
+              DateTime lastDate = DateTime.MinValue;
+              foreach (TopicNote note in Model.Topic.TopicNotes)
+              {
+                if (note.DateOfCreation > lastDate)
+                {
+                  lastDate = note.DateOfCreation;
+                  <button class="btn btn-date" onclick="document.getElementById('n@(i++)').scrollIntoView({behavior: 'smooth', block: 'center'})">@(note.DateOfCreation.Day)/@(note.DateOfCreation.Month) @(note.DateOfCreation.Year)</button>
+                }
+                else
+                {
+                  i++;
+                }
+              }
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    @{
+      int n = 0;
+      @foreach (TopicNote note in Model.Topic.TopicNotes)
+      {
+        <hr />
+  
+        <div class="row" id="n@(n++)">
+          <div class="col col-12 col-lg-4">
+            Oprettet: @(note.DateOfCreation.Day)/@(note.DateOfCreation.Month) @(note.DateOfCreation.Year)
+            <br />
+            <small>
+              <i><a href="@note.Source" target=”_blank”>Åbn i ny fane</a> </i>
+            </small>
+          </div>
+          <div class="col col-12 col-lg-8">
+            <iframe class="google-docs" src="@note.Source"></iframe>
+          </div>
+        </div>
+      }
+    }
+  </div>
+}
+else
+{
+  <hr />
+
+  <div class="text-center">
+    <i>Der er ingen noter under dette emne ...</i>
+  </div>
+}

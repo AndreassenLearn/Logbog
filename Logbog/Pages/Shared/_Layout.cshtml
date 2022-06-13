@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@ViewData["Title"] - Logbog</title>
+  <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="~/Logbog.styles.css" asp-append-version="true" />
+  <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+  <header>
+    <nav class="navbar fixed-top">
+      <div class="container justify-content-start">
+        <button class="btn btn-default btn-menu-toggle" type="button" data-bs-toggle="offcanvas" href="#offcanvasMenu" role="button" aria-controls="offcanvasMenu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+          </svg>
+        </button>
+        <a class="navbar-brand" asp-area="" asp-page="/Index">Logbog</a>
+      </div>
+    </nav>
+  </header>
+  <div class="container">
+    <main role="main">
+      @*Offcanvas menu*@
+      <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+        <div class="offcanvas-header">
+          <h5 class="offcanvas-title" id="offcanvasMenuLabel">Menu</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+          <h3>
+            <a asp-area="" asp-page="/Index">Logbog</a>
+          </h3>
+
+          @*Accordion menu*@
+          <div class="accordion" id="accordionMenu">
+            @*Layer 1*@
+            @foreach (Topic topic in TopicService.GetTopics())
+            {
+               <hr />
+
+              <div class="submenu">
+                <div class="btn-group" role="group">
+                  <a class="btn btn-menu @(topic.TopicNotes.Any() ? Html.Raw("") : Html.Raw("disabled"))" asp-area="" asp-page="/Topic" asp-route-m="@topic.MainIndex">@(topic.MainIndex.ToString()). @topic.Name</a>
+                  @if (topic.Topics.Any())
+                  {
+                    <a class="btn btn-menu" data-bs-toggle="collapse" data-bs-target="#t@(topic.MainIndex.ToString())" aria-expanded="false" aria-controls="t@(topic.MainIndex.ToString())">
+                      &#11167;
+                    </a>
+                  }
+                </div>
+                <div id="t@(topic.MainIndex.ToString())" class="accordion-collapse collapse" data-bs-parent="#accordionMenu">
+                  <div class="accordion-body">
+                    @*Layer 2*@
+                    @foreach (Topic subTopic in topic.Topics)
+                    {
+                      <div class="submenu">
+                        <div class="btn-group" role="group">
+                          <a class="btn btn-menu @(subTopic.TopicNotes.Any() ? Html.Raw("") : Html.Raw("disabled"))" asp-area="" asp-page="/Topic" asp-route-m="@subTopic.MainIndex" asp-route-s="@subTopic.SubIndex">@(subTopic.MainIndex.ToString()).@(subTopic.SubIndex.ToString()) @subTopic.Name</a>
+                          @if (subTopic.Topics.Any())
+                          {
+                            <a class="btn btn-menu" data-bs-toggle="collapse" data-bs-target="#t@(subTopic.MainIndex.ToString())@(subTopic.SubIndex.ToString())" aria-expanded="false" aria-controls="t@(subTopic.MainIndex.ToString())@(subTopic.SubIndex.ToString())">
+                              &#11167;
+                            </a>
+                          }
+                        </div>
+                        <div id="t@(subTopic.MainIndex.ToString())@(subTopic.SubIndex.ToString())" class="accordion-collapse collapse">
+                          <div class="accordion-body">
+                            @*Layer 3*@
+                            @foreach (Topic subSubTopic in subTopic.Topics)
+                            {
+                              <div class="submenu">
+                                <div class="btn-group" role="group">
+                                  <a class="btn btn-menu @(subSubTopic.TopicNotes.Any() ? Html.Raw("") : Html.Raw("disabled"))" asp-area="" asp-page="/Topic" asp-route-m="@subSubTopic.MainIndex" asp-route-s="@subSubTopic.SubIndex" asp-route-ss="@subSubTopic.SubSubIndex">@(subSubTopic.MainIndex.ToString()).@(subSubTopic.SubIndex.ToString()).@(subSubTopic.SubSubIndex.ToString()) @subSubTopic.Name</a>
+                                  @if (subSubTopic.Topics.Any())
+                                  {
+                                    <a class="btn btn-menu" data-bs-toggle="collapse" data-bs-target="#t@(subSubTopic.MainIndex.ToString())@(subSubTopic.SubIndex.ToString())@(subSubTopic.SubSubIndex.ToString())" aria-expanded="false" aria-controls="t@(subSubTopic.MainIndex.ToString())@(subSubTopic.SubIndex.ToString())@(subSubTopic.SubSubIndex.ToString())">
+                                      &#11167;
+                                    </a>
+                                  }
+                                </div>
+                                <div id="t@(subSubTopic.MainIndex.ToString())@(subSubTopic.SubIndex.ToString())@(subSubTopic.SubSubIndex.ToString())" class="accordion-collapse collapse">
+                                  <div class="accordion-body">
+                                    @*Layer 3*@
+
+                                  </div>
+                                </div>
+                              </div>
+                            }
+
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+
+        </div>
+      </div>
+
+      @RenderBody()
+    </main>
+  </div>
+
+  <footer>
+    <div class="container">
+      &copy; 2022 - Logbog
+    </div>
+  </footer>
+
+  <button class="btn" onclick="topFunction()" id="topBtn" title="Gå til toppen">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-arrow-up-short" viewBox="0 0 16 16">
+      <path fill-rule="evenodd" d="M8 12a.5.5 0 0 0 .5-.5V5.707l2.146 2.147a.5.5 0 0 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 1 0 .708.708L7.5 5.707V11.5a.5.5 0 0 0 .5.5z"/>
+    </svg>
+  </button>
+
+  <script src="~/lib/jquery/dist/jquery.min.js"></script>
+  <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="~/js/site.js" asp-append-version="true"></script>
+
+  @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
